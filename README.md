@@ -28,6 +28,7 @@ react-hook-form, Tailwind CSS 4 with Radix primitives, Biome and Vitest. Node 22
 | `npm test` | Vitest |
 | `npm run db:push` | Apply `prisma/schema.prisma` to the database |
 | `npm run db:seed` | Add the sample data (safe to run again) |
+| `npm run db:seed:demo` | Add demo months for Nimbus, entered and reviewed through the app code (safe to run again) |
 | `npm run db:studio` | Browse the database |
 
 ## Tests
