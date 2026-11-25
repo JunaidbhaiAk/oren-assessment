@@ -3,6 +3,8 @@
 A small app for a cement company's sustainability team: a register of plants, sample logins for
 each kind of user, and the emission factors the team uses.
 
+Live: https://oren-assessment.vercel.app (no login; pick a user from the switcher)
+
 ## Stack
 
 Next.js 14 (Pages Router), React 18, tRPC 10 with TanStack Query 4, Prisma 6 on Postgres, zod,
