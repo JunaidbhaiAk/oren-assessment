@@ -23,3 +23,10 @@ export function roleLabels(roles: readonly string[]): string {
 		.map((role) => ROLE_LABELS[role])
 		.join(", ");
 }
+
+/** Where a user lands after choosing a login. */
+export function homePath(user: { roles: readonly string[] }): string {
+	if (hasRole(user, "SUSTAINABILITY_HEAD")) return "/dashboard";
+	if (hasRole(user, "REVIEWER")) return "/review";
+	return "/plants";
+}

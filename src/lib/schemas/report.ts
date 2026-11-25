@@ -123,3 +123,36 @@ export const reviewDetail = queueItem.extend({
 	previousPeriod: z.string().nullable(),
 });
 export type ReviewDetail = z.infer<typeof reviewDetail>;
+
+// Dashboard
+
+export const dashboardInput = z.object({ year: z.number().int().min(2000).max(2100) });
+
+export const dashboardMonth = z.object({
+	month: z.number().int(),
+	status: z.enum(["NOT_STARTED", ...REPORT_STATUSES]),
+	/** Tonnes of CO2. Set only for an approved month, so an unapproved figure cannot reach the screen. */
+	scope1Tonnes: z.number().nullable(),
+	scope2Tonnes: z.number().nullable(),
+});
+
+export const dashboardPlant = z.object({
+	plantId: z.string(),
+	code: z.string(),
+	name: z.string(),
+	months: z.array(dashboardMonth),
+	approvedMonths: z.number().int(),
+	scope1Tonnes: z.number(),
+	scope2Tonnes: z.number(),
+});
+
+export const dashboard = z.object({
+	year: z.number().int(),
+	plants: z.array(dashboardPlant),
+	scope1Tonnes: z.number(),
+	scope2Tonnes: z.number(),
+	/** Plant-months that have ended, so are due, and how many of them are approved. */
+	dueMonths: z.number().int(),
+	approvedMonths: z.number().int(),
+});
+export type Dashboard = z.infer<typeof dashboard>;
