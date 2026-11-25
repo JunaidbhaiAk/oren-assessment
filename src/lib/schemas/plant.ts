@@ -58,6 +58,12 @@ export const plantSummary = z.object({
 });
 export type PlantSummary = z.infer<typeof plantSummary>;
 
+export const plantListItem = plantSummary.extend({
+	/** True when the signed-in user is a data owner of this plant. */
+	ownedByMe: z.boolean(),
+});
+export type PlantListItem = z.infer<typeof plantListItem>;
+
 export const changeEntry = z.object({
 	id: z.string(),
 	action: z.string(),

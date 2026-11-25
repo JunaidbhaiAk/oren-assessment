@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 
 import type {
   PlantDetail,
+  PlantListItem,
   PlantSummary,
   PlantUpdateInput,
 } from "@/lib/schemas/plant";
@@ -27,13 +28,16 @@ const plantSummarySelect = {
 export type PlantFilters = {
   companyId?: string;
   search?: string;
+  /** Only plants this user reports for. */
   userId?: string;
+  /** Marks which plants this user reports for. */
+  viewerId?: string;
 };
 
 export async function listPlants(
   db: Db,
   filters: PlantFilters,
-): Promise<PlantSummary[]> {
+): Promise<PlantListItem[]> {
   const search = filters.search?.trim();
   const filteredObj: Prisma.PlantWhereInput = search
     ? {
@@ -48,11 +52,18 @@ export async function listPlants(
   if (filters.companyId) filteredObj.companyId = filters.companyId;
   if (filters.userId) filteredObj.dataOwners = { some: { id: filters.userId } };
 
-  return db.plant.findMany({
+  const plants = await db.plant.findMany({
     where: filteredObj,
     orderBy: [{ code: "asc" }, { createdAt: "asc" }],
-    select: plantSummarySelect,
+    select: {
+      ...plantSummarySelect,
+      dataOwners: { where: { id: filters.viewerId ?? "" }, select: { id: true } },
+    },
   });
+  return plants.map(({ dataOwners, ...plant }) => ({
+    ...plant,
+    ownedByMe: dataOwners.length > 0,
+  }));
 }
 
 export async function getPlantDetail(

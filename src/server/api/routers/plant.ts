@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
 
-import { ROLES } from "@/lib/roles";
+import { ROLES, hasRole } from "@/lib/roles";
 import {
   plantByIdInput,
   plantDetail,
   plantListInput,
+  plantListItem,
   plantSummary,
   plantUpdateInput,
 } from "@/lib/schemas/plant";
@@ -25,12 +26,16 @@ const notFound = () =>
 export const plantRouter = router({
   list: protectedProcedure
     .input(plantListInput)
-    .output(plantSummary.array())
+    .output(plantListItem.array())
     .query(({ ctx, input }) =>
       listPlants(ctx.db, {
         search: input.search,
         companyId: ctx.user.companyId,
-        userId: ctx.user.id,
+        // A plain data owner sees their own plants. Reviewers and the Head see the whole company.
+        userId: hasRole(ctx.user, ROLES.REVIEWER, ROLES.SUSTAINABILITY_HEAD)
+          ? undefined
+          : ctx.user.id,
+        viewerId: ctx.user.id,
       }),
     ),
 

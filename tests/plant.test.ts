@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ROLES } from "@/lib/roles";
+import { prisma } from "@/server/db";
 
 import { callerFor, createTestCompany, createTestPlant, createTestUser, deleteTestCompany } from "./helpers";
 
@@ -66,5 +67,20 @@ describe("plant.byId", () => {
 
 	it("does not show another company's plant", async () => {
 		await expect(callerFor(fx.outsider).plant.byId({ id: fx.plant.id })).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+});
+
+describe("plant.list", () => {
+	it("marks the plants the user reports for, and shows a plain data owner only those", async () => {
+		await prisma.plant.update({
+			where: { id: fx.plant.id },
+			data: { dataOwners: { connect: { id: fx.dataOwner.id } } },
+		});
+		const mine = await callerFor(fx.dataOwner).plant.list({});
+		expect(mine).toHaveLength(1);
+		expect(mine[0]).toMatchObject({ id: fx.plant.id, ownedByMe: true });
+
+		const all = await callerFor(fx.reviewer).plant.list({});
+		expect(all.find((p) => p.id === fx.plant.id)).toMatchObject({ ownedByMe: false });
 	});
 });
