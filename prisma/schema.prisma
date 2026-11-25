@@ -9,12 +9,13 @@ datasource db {
 }
 
 model Company {
-  id         String      @id @default(cuid())
-  name       String      @unique
-  createdAt  DateTime    @default(now())
+  id         String          @id @default(cuid())
+  name       String          @unique
+  createdAt  DateTime        @default(now())
   users      User[]
   plants     Plant[]
   changeLogs ChangeLog[]
+  reports    MonthlyReport[]
 }
 
 model User {
@@ -37,7 +38,7 @@ enum PlantType {
 }
 
 model Plant {
-  id                String    @id @default(cuid())
+  id                String          @id @default(cuid())
   /// The company's own code for the plant, for example P01.
   code              String
   name              String
@@ -46,10 +47,11 @@ model Plant {
   type              PlantType
   cementCapacityTpa Int
   companyId         String
-  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  dataOwners        User[]    @relation("PlantDataOwners")
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  dataOwners        User[]          @relation("PlantDataOwners")
+  reports           MonthlyReport[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@unique([companyId, code])
 }
@@ -69,4 +71,46 @@ model ChangeLog {
   createdAt   DateTime @default(now())
 
   @@index([companyId, entityType, entityId])
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+/// One plant's data for one calendar month. A month with no row has not been started.
+model MonthlyReport {
+  id            String       @id @default(cuid())
+  companyId     String
+  company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plantId       String
+  plant         Plant        @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  year          Int
+  /// 1 to 12.
+  month         Int
+  status        ReportStatus @default(DRAFT)
+  /// The reviewer's comment when the month was sent back.
+  reviewComment String?
+  submittedAt   DateTime?
+  lines         ReportLine[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([plantId, year, month])
+  @@index([companyId, status])
+}
+
+/// One item of a month, as the plant entered it. `itemKey` is a key from EMISSION_FACTORS.
+model ReportLine {
+  id       String        @id @default(cuid())
+  reportId String
+  report   MonthlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  itemKey  String
+  quantity Float
+  /// The unit the plant entered, a key from UNITS in src/lib/units.ts.
+  unit     String
+
+  @@unique([reportId, itemKey])
 }
