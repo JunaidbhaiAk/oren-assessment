@@ -154,7 +154,13 @@ export default function DashboardPage() {
 														className="px-1"
 														data-testid={`dash-${plant.code}-${m.month}`}
 													>
-														<StatusCell status={m.status} label={label} due={due} />
+														{m.reportId ? (
+															<Link href={`/audit?report=${m.reportId}`} aria-label={`${label}. Open its history`}>
+																<StatusCell status={m.status} label={label} due={due} />
+															</Link>
+														) : (
+															<StatusCell status={m.status} label={label} due={due} />
+														)}
 													</TableCell>
 												);
 											})}

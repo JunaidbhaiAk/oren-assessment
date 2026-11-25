@@ -60,3 +60,21 @@ describe("dashboard", () => {
 		await expect(callerFor(fx.owner).dashboard.year({ year: 2020 })).rejects.toMatchObject({ code: "FORBIDDEN" });
 	});
 });
+
+describe("audit log", () => {
+	it("shows a month's history with who did what, for reviewers and the Head", async () => {
+		const jan = await prisma.monthlyReport.findUniqueOrThrow({
+			where: { plantId_year_month: { plantId: fx.plant.id, year: 2020, month: 1 } },
+		});
+		const page = await callerFor(fx.head).audit.list({ reportId: jan.id });
+		expect(page.entries.map((e) => e.action)).toEqual(["approve", "submit", "save", "create"]);
+		expect(page.entries[0]).toMatchObject({ actorName: "Reviewer", plantCode: "P01", period: "2020-01" });
+
+		const byPlant = await callerFor(fx.reviewer).audit.list({ plantId: fx.plant.id });
+		expect(byPlant.entries.length).toBeGreaterThan(4);
+	});
+
+	it("is not for data owners", async () => {
+		await expect(callerFor(fx.owner).audit.list({})).rejects.toMatchObject({ code: "FORBIDDEN" });
+	});
+});

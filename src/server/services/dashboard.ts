@@ -16,7 +16,7 @@ export async function getDashboard(db: Db, user: SessionUser, year: number): Pro
 			name: true,
 			reports: {
 				where: { year },
-				select: { month: true, status: true, lines: { select: { itemKey: true, quantity: true, unit: true } } },
+				select: { id: true, month: true, status: true, lines: { select: { itemKey: true, quantity: true, unit: true } } },
 			},
 		},
 	});
@@ -38,12 +38,12 @@ export async function getDashboard(db: Db, user: SessionUser, year: number): Pro
 			if (monthHasEnded(year, month)) result.dueMonths++;
 			if (report?.status === "APPROVED") {
 				const totals = totalsByScope(report.lines);
-				row.months.push({ month, status: "APPROVED", scope1Tonnes: totals.scope1, scope2Tonnes: totals.scope2 });
+				row.months.push({ month, reportId: report.id, status: "APPROVED", scope1Tonnes: totals.scope1, scope2Tonnes: totals.scope2 });
 				row.approvedMonths++;
 				row.scope1Tonnes += totals.scope1;
 				row.scope2Tonnes += totals.scope2;
 			} else {
-				row.months.push({ month, status: report?.status ?? "NOT_STARTED", scope1Tonnes: null, scope2Tonnes: null });
+				row.months.push({ month, reportId: null, status: report?.status ?? "NOT_STARTED", scope1Tonnes: null, scope2Tonnes: null });
 			}
 		}
 		result.approvedMonths += row.approvedMonths;

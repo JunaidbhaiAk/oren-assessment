@@ -1,4 +1,4 @@
-import { AlertTriangle, ClipboardCheck, Factory, Flame, LayoutDashboard } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Factory, Flame, History, LayoutDashboard } from "lucide-react";
 import { useRouter } from "next/router";
 import { type ReactNode, useEffect } from "react";
 
@@ -25,10 +25,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ROLES, type Role, hasRole } from "@/lib/roles";
 import { api } from "@/utils/api";
 
-const NAV_ITEMS: { href: string; label: string; icon: typeof Factory; role?: Role }[] = [
-	{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, role: ROLES.SUSTAINABILITY_HEAD },
+const NAV_ITEMS: { href: string; label: string; icon: typeof Factory; roles?: Role[] }[] = [
+	{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: [ROLES.SUSTAINABILITY_HEAD] },
 	{ href: "/plants", label: "Plants", icon: Factory },
-	{ href: "/review", label: "Review", icon: ClipboardCheck, role: ROLES.REVIEWER },
+	{ href: "/review", label: "Review", icon: ClipboardCheck, roles: [ROLES.REVIEWER] },
+	{ href: "/audit", label: "Audit log", icon: History, roles: [ROLES.SUSTAINABILITY_HEAD, ROLES.REVIEWER] },
 	{ href: "/factors", label: "Emission factors", icon: Flame },
 ];
 
@@ -65,7 +66,7 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarGroup>
-						{NAV_ITEMS.filter((item) => !item.role || (me.data && hasRole(me.data, item.role))).map((item) => (
+						{NAV_ITEMS.filter((item) => !item.roles || (me.data && hasRole(me.data, ...item.roles))).map((item) => (
 							<SidebarMenuButton
 								key={item.href}
 								href={item.href}

@@ -129,6 +129,8 @@ export type ReviewDetail = z.infer<typeof reviewDetail>;
 export const dashboardInput = z.object({ year: z.number().int().min(2000).max(2100) });
 
 export const dashboardMonth = z.object({
+	/** The approved report, to open its history. Null unless approved. */
+	reportId: z.string().nullable(),
 	month: z.number().int(),
 	status: z.enum(["NOT_STARTED", ...REPORT_STATUSES]),
 	/** Tonnes of CO2. Set only for an approved month, so an unapproved figure cannot reach the screen. */
