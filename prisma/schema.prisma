@@ -19,17 +19,18 @@ model Company {
 }
 
 model User {
-  id        String      @id @default(cuid())
-  name      String
-  email     String      @unique
+  id              String          @id @default(cuid())
+  name            String
+  email           String          @unique
   /// Values from ROLES in src/lib/roles.ts. A user can hold more than one role.
-  roles     String[]
-  companyId String
-  company   Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  roles           String[]
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   /// Plants whose data this user is responsible for.
-  plants    Plant[]     @relation("PlantDataOwners")
-  changes   ChangeLog[]
-  createdAt DateTime    @default(now())
+  plants          Plant[]         @relation("PlantDataOwners")
+  changes         ChangeLog[]
+  reviewedReports MonthlyReport[] @relation("ReportReviewer")
+  createdAt       DateTime        @default(now())
 }
 
 enum PlantType {
@@ -93,6 +94,9 @@ model MonthlyReport {
   status        ReportStatus @default(DRAFT)
   /// The reviewer's comment when the month was sent back.
   reviewComment String?
+  reviewedById  String?
+  reviewedBy    User?        @relation("ReportReviewer", fields: [reviewedById], references: [id], onDelete: NoAction)
+  reviewedAt    DateTime?
   submittedAt   DateTime?
   lines         ReportLine[]
   createdAt     DateTime     @default(now())

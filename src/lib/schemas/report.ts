@@ -79,3 +79,47 @@ export const yearOverview = z.array(
 	z.object({ month: z.number().int(), status: z.enum(["NOT_STARTED", ...REPORT_STATUSES]) }),
 );
 export type YearOverview = z.infer<typeof yearOverview>;
+
+// Review
+
+export const reviewIdInput = z.object({ reportId: z.string().min(1) });
+
+export const sendBackInput = reviewIdInput.extend({
+	comment: z.string().trim().min(3, "Say what needs fixing.").max(1000),
+});
+
+export const queueItem = z.object({
+	reportId: z.string(),
+	plantCode: z.string(),
+	plantName: z.string(),
+	year: z.number().int(),
+	month: z.number().int(),
+	submittedAt: z.date().nullable(),
+	/** How many items moved a lot against the plant's last approved month. */
+	flagCount: z.number().int(),
+	/** True when the reviewer is also this plant's data owner, so cannot review it. */
+	ownPlant: z.boolean(),
+});
+export type QueueItem = z.infer<typeof queueItem>;
+
+export const reviewLine = z.object({
+	itemKey: z.string(),
+	quantity: z.number(),
+	unit: z.string(),
+	co2Tonnes: z.number(),
+	/** Last approved month's quantity in the same unit as `quantity`, if there is one. */
+	previousQuantity: z.number().nullable(),
+	/** Change against the last approved month, as a fraction (0.5 is +50%). */
+	change: z.number().nullable(),
+	flagged: z.boolean(),
+});
+
+export const reviewDetail = queueItem.extend({
+	status: z.enum(REPORT_STATUSES),
+	lines: z.array(reviewLine),
+	scope1Tonnes: z.number(),
+	scope2Tonnes: z.number(),
+	/** The month compared against, as "2026-09", or null when there is none. */
+	previousPeriod: z.string().nullable(),
+});
+export type ReviewDetail = z.infer<typeof reviewDetail>;
