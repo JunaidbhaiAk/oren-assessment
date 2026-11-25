@@ -1,4 +1,4 @@
-import { AlertTriangle, Factory, Search } from "lucide-react";
+import { AlertTriangle, CalendarDays, Factory, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -33,7 +33,7 @@ import {
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { api } from "@/utils/api";
 
-const COLUMNS = 6;
+const COLUMNS = 7;
 
 export default function PlantsPage() {
   const router = useRouter();
@@ -72,6 +72,7 @@ export default function PlantsPage() {
             <TableHead>State</TableHead>
             <TableHead>Type</TableHead>
             <TableHead align="right">Cement capacity</TableHead>
+            <TableHead align="right">Monthly data</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -150,6 +151,21 @@ export default function PlantsPage() {
               </TableCell>
               <TableCell align="right">
                 {formatCapacity(plant.cementCapacityTpa)}
+              </TableCell>
+              <TableCell align="right">
+                {plant.ownedByMe && (
+                  <OrenButton
+                    size="sm"
+                    leftIcon={<CalendarDays />}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void router.push(`/plants/${plant.id}/months`);
+                    }}
+                    data-testid={`plants-months-${plant.code}`}
+                  >
+                    Enter months
+                  </OrenButton>
+                )}
               </TableCell>
             </TableRow>
           ))}
