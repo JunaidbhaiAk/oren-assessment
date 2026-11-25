@@ -7,7 +7,7 @@ import { saveMonth, submitMonth } from "@/server/services/report";
 import { approveMonth, sendBackMonth } from "@/server/services/review";
 import { getSessionUser } from "@/server/services/session";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ transactionOptions: { maxWait: 10_000, timeout: 20_000 } });
 const YEAR = 2026;
 
 type Items = Partial<Record<ReportLineInput["itemKey"], [number, ReportLineInput["unit"]]>>;

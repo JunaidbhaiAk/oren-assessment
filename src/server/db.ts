@@ -6,6 +6,8 @@ export const prisma =
 	globalForPrisma.prisma ??
 	new PrismaClient({
 		log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+		// The default 5 s is too tight for a transaction that makes several round trips to a hosted database.
+		transactionOptions: { maxWait: 10_000, timeout: 20_000 },
 	});
 
 if (process.env.NODE_ENV !== "production") {
