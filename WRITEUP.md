@@ -25,6 +25,10 @@ A plant sends a month, a reviewer approves it, Meera sees only approved figures.
 
 Calendar year, not April to March. A plant has one report per month. Approved months are final. Totals are tonnes of CO2, using the factor table as given.
 
+## A bug in the starter, fixed before my first commit
+
+`listPlants` in the starter had a `companyId` and `userId` in its filters but never used them, so the plant list was not limited to the user's company or to the plants they report for. I found it when setting up and fixed it by building the query's `where` object dynamically: each filter is added only when it is set. This is already in the first commit ("Starter as received"), so the history does not show it separately. Without it, a plant owner would see every plant, including another company's. I later changed one thing on top: reviewers and the Head see the whole company, while a plain data owner sees only their own plants.
+
 ## What I left out
 
 - Reopening an approved month. A correction after approval needs a controlled reopen with its own audit entries.
